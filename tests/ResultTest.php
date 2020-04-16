@@ -9,11 +9,20 @@ use function Phpoar\{Err, None, Ok, Some};
 
 class ResultTest extends TestCase {
 
-    /**
-     * @throws \Throwable
-     */
+    public function test_or() {
+        $this->assertEquals(Ok(1)->or(Ok(2)), Ok(1));
+        $this->assertEquals(Err(1)->or(Ok(2)), Ok(2));
+
+        $this->assertEquals(Err(1)->or_else(function () {
+            return Err(2);
+        }), Err(2));
+        $this->assertEquals(Ok(1)->or_else(function () {
+            return Ok(2);
+        }), Ok(1));
+    }
+
     public function test_ok() {
-        $this->assertEquals(Ok(null)->unwrap(), None());
+        $this->assertEquals(Ok(null), Ok(None()));
         $ok1 = Ok(1);
         $this->assertTrue($ok1->is_ok());
         $this->assertFalse($ok1->is_err());
@@ -21,9 +30,6 @@ class ResultTest extends TestCase {
         $this->assertEquals($ok1->err(), None());
     }
 
-    /**
-     * @throws \Throwable
-     */
     public function test_map() {
         $ok = Ok(3);
         $this->assertEquals($ok->map(function ($i) {
@@ -69,22 +75,25 @@ class ResultTest extends TestCase {
         $ok = Ok("ok1");
         $ok233 = Ok(2333);
         $this->assertEquals($ok->and($ok233), Ok(2333));
+
+        $this->assertEquals(Ok(1)->and_then(function ($x) {
+            return Ok($x + 2);
+        }), Ok(3));
     }
 
     /**
      * @throws \Throwable
      */
     public function test_unwrap() {
-        $result = Ok("yes");
-        $result2 = Err("oh no!");
-
-        $this->assertEquals($result->unwrap(), "yes");
-
+        $this->assertEquals(Ok("yes")->unwrap(), "yes");
         try {
-            $result2->unwrap();
+            Err("oh no!")->unwrap();
         } catch (\Throwable $t) {
             $this->assertTrue($t instanceof ResultException);
         }
+
+        $this->assertEquals(Ok(1)->unwrap_or(3), 1);
+        $this->assertEquals(Err(1)->unwrap_or(3), 3);
     }
 
 }

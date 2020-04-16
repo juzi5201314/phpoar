@@ -25,6 +25,10 @@ test2(\Phpoar\Err(new \Exception()));
 * map_or_else
 * map_err
 * and
+* and_then
+* or
+* or_else
+* unwrap_or
 
 #### Option
 * unwarp

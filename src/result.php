@@ -108,6 +108,50 @@ abstract class Result {
             return Err($this->err);
     }
 
+    /**
+     * @param callable $fn($val): Result<$U, $E>
+     * @return Result<$U, $E>
+     */
+    public function and_then(callable $fn): Result {
+        if ($this->is_ok())
+            return $fn($this->val);
+        else
+            return Err($this->err);
+    }
+
+    /**
+     * @param Result $res
+     * @return Result
+     */
+    public function or(Result $res): Result {
+        if ($this->is_ok())
+            return Ok($this->val);
+        else
+            return $res;
+    }
+
+    /**
+     * @param callable $fn($err): Result
+     * @return Result
+     */
+    public function or_else(callable $fn): Result {
+        if ($this->is_ok())
+            return Ok($this->val);
+        else
+            return $fn($this->err);
+    }
+
+    /**
+     * @param $optb
+     * @return mixed | $val or $optb
+     */
+    public function unwrap_or($optb) {
+        if ($this->is_ok())
+            return $this->val;
+        else
+            return $optb;
+    }
+
     public final static function _ok($val): Ok {
         return new Ok($val ?? None());
     }
