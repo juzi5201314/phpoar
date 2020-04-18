@@ -1,6 +1,7 @@
 {
   "name": "soeur/phpoar",
   "description": "Imitate the option and result of rust.",
+  "minimum-stability": "dev",
   "require": {
     "php": ">=7.3"
   },

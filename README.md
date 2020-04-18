@@ -15,7 +15,7 @@ test2(\Phpoar\Err(new \Exception()));
 ## Available
 
 #### Result
-* unwarp
+* unwrap
 * is_ok
 * is_err
 * ok
@@ -29,6 +29,12 @@ test2(\Phpoar\Err(new \Exception()));
 * or
 * or_else
 * unwrap_or
+* unwrap_or_else
 
 #### Option
-* unwarp
+* unwrap
+* is_some
+* is_none
+* map
+* unwrap_or
+* unwrap_or_else

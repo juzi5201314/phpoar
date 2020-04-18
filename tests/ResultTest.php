@@ -94,6 +94,10 @@ class ResultTest extends TestCase {
 
         $this->assertEquals(Ok(1)->unwrap_or(3), 1);
         $this->assertEquals(Err(1)->unwrap_or(3), 3);
+
+        $this->assertEquals(Err("er")->unwrap_or_else(function ($err) {
+            return $err . "r";
+        }), "err");
     }
 
 }

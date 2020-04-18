@@ -14,13 +14,33 @@ abstract class Result {
         if ($this instanceof Ok)
             return $this->val;
         else
-            if ($this->err instanceof \Throwable) {
-                throw $this->err;
-            } elseif ($this->err == None()) {
-                throw new ResultException("Phpoar Result Exception. Err is empty.");
-            } else {
-                throw new ResultException("Phpoar Result Exception: \r\n" . var_export($this->err, true));
-            }
+            $this->panic("called `Result::unwrap()` on an `Err` value: \r\n" . is_string($this->err) ? strval($this->err) : print_r($this->err, true));
+        return null; // 跳过phpstorm的missing返回语句警告
+    }
+
+    /**
+     * @param string $msg
+     * @return mixed <$val>
+     * @throws \Throwable
+     */
+    public final function expect(string $msg) {
+        if ($this instanceof Ok)
+            return $this->val;
+        else
+            $this->panic($msg);
+        return null; // 跳过phpstorm的missing返回语句警告
+    }
+
+    /**
+     * @param string $msg
+     * @throws \Throwable
+     */
+    private final function panic(string $msg) {
+        if ($this->err instanceof \Throwable) {
+            throw $this->err;
+        } else {
+            throw new ResultException($msg);
+        }
     }
 
     /**
@@ -65,7 +85,7 @@ abstract class Result {
     /**
      * @param mixed $default
      * @param callable $fn($val): $T
-     * @return mixed <$T or $default>
+     * @return mixed <$T | $default>
      */
     public function map_or($default, callable $fn) {
         if ($this->is_err())
@@ -143,13 +163,35 @@ abstract class Result {
 
     /**
      * @param $optb
-     * @return mixed | $val or $optb
+     * @return mixed | $val | $optb
      */
     public function unwrap_or($optb) {
         if ($this->is_ok())
             return $this->val;
         else
             return $optb;
+    }
+
+    /**
+     * @param callable $fn($err): $T
+     * @return mixed | $val | $T
+     */
+    public function unwrap_or_else(callable $fn) {
+        if ($this->is_ok())
+            return $this->val;
+        else
+            return $fn($this->err);
+    }
+
+    public function __toString() {
+        return sprintf("Result: %s(%s)", basename(get_class($this)), $this->is_ok() ? gettype($this->val): gettype($this->err));
+    }
+
+    public function __clone() {
+        if (is_object($this->val))
+            $this->val = clone $this->val;
+        if (is_object($this->err))
+            $this->err = clone $this->err;
     }
 
     public final static function _ok($val): Ok {
